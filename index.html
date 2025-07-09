@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>iPhone Calculator</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      @font-face {
+        font-family: "SF Pro";
+        src: url("./font/SFPRODISPLAYREGULAR.OTF") format("opentype");
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "SF Pro";
+        src: url("./font/SFPRODISPLAYBOLD.OTF") format("opentype");
+        font-weight: 700;
+        font-display: swap;
+      }
+
+      body {
+        font-family: "SF Pro", -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .calculator {
+        background-color: #000;
+        border-radius: 20px;
+        padding: 20px;
+        width: 360px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .display {
+        background-color: #000;
+        color: white;
+        text-align: right;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        min-height: 100px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+      }
+
+      .display-text {
+        font-size: 3.5rem;
+        font-weight: 300;
+        line-height: 1;
+        word-break: break-all;
+        font-family: inherit;
+        overflow: hidden;
+        max-width: 100%;
+        white-space: pre;
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 70px;
+        width: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+      }
+
+      .btn:active {
+        transform: scale(0.95);
+      }
+
+      .btn-number {
+        background-color: #333;
+        color: white;
+      }
+
+      .btn-number:hover {
+        background-color: #404040;
+      }
+
+      .btn-operator {
+        background-color: #ff9500;
+        color: white;
+      }
+
+      .btn-operator:hover {
+        background-color: #ffad33;
+      }
+
+      .btn-operator.active {
+        background-color: white;
+        color: #ff9500;
+      }
+
+      .btn-function {
+        background-color: #a6a6a6;
+        color: black;
+      }
+
+      .btn-function:hover {
+        background-color: #bfbfbf;
+      }
+
+      .btn-zero {
+        grid-column: span 2;
+        border-radius: 35px;
+        width: auto;
+        justify-content: flex-start;
+        padding-left: 25px;
+      }
+
+      @media (max-width: 480px) {
+        .calculator {
+          max-width: 280px;
+          padding: 15px;
+        }
+
+        .btn {
+          height: 50px;
+          width: 50px;
+          font-size: 1.1rem;
+        }
+
+        .btn-zero {
+          width: 100%;
+        }
+
+        .display-text {
+          font-size: 2.8rem;
+        }
+
+        .buttons {
+          gap: 10px;
+        }
+      }
+
+      @media (max-width: 320px) {
+        .btn {
+          height: 50px;
+          width: 50px;
+          font-size: 1.1rem;
+        }
+
+        .display-text {
+          font-size: 2.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calculator">
+      <div class="display">
+        <div class="display-text" id="display">0</div>
+      </div>
+
+      <div class="buttons">
+        <button
+          class="btn btn-function"
+          onclick="clearFunction()"
+          id="clearBtn"
+        >
+          AC
+        </button>
+        <button class="btn btn-function" onclick="toggleSign()">+/-</button>
+        <button class="btn btn-function" onclick="percentage()">%</button>
+        <button
+          class="btn btn-operator"
+          onclick="setOperation('÷')"
+          id="divide"
+        >
+          ÷
+        </button>
+
+        <button class="btn btn-number" onclick="inputNumber('7')">7</button>
+        <button class="btn btn-number" onclick="inputNumber('8')">8</button>
+        <button class="btn btn-number" onclick="inputNumber('9')">9</button>
+        <button
+          class="btn btn-operator"
+          onclick="setOperation('×')"
+          id="multiply"
+        >
+          ×
+        </button>
+
+        <button class="btn btn-number" onclick="inputNumber('4')">4</button>
+        <button class="btn btn-number" onclick="inputNumber('5')">5</button>
+        <button class="btn btn-number" onclick="inputNumber('6')">6</button>
+        <button
+          class="btn btn-operator"
+          onclick="setOperation('-')"
+          id="subtract"
+        >
+          -
+        </button>
+
+        <button class="btn btn-number" onclick="inputNumber('1')">1</button>
+        <button class="btn btn-number" onclick="inputNumber('2')">2</button>
+        <button class="btn btn-number" onclick="inputNumber('3')">3</button>
+        <button class="btn btn-operator" onclick="setOperation('+')" id="add">
+          +
+        </button>
+
+        <button class="btn btn-number btn-zero" onclick="inputNumber('0')">
+          0
+        </button>
+        <button class="btn btn-number" onclick="inputDecimal()">.</button>
+        <button class="btn btn-operator" onclick="calculate()">=</button>
+      </div>
+    </div>
+
+    <script>
+      let display = document.getElementById("display");
+      let clearBtn = document.getElementById("clearBtn");
+      let currentInput = "0";
+      let previousInput = null;
+      let operator = null;
+      let waitingForOperand = false;
+
+      function updateDisplay() {
+        display.textContent = formatDisplay(currentInput);
+        updateClearButton();
+      }
+
+      function updateClearButton() {
+        const isInitialState =
+          currentInput === "0" &&
+          previousInput === null &&
+          operator === null &&
+          !waitingForOperand;
+
+        clearBtn.textContent = isInitialState ? "AC" : "C";
+      }
+
+      function formatDisplay(value) {
+        if (value === "Error") return value;
+        if (value.length > 9) {
+          const num = parseFloat(value);
+          if (num > 999999999 || num < -999999999) {
+            return num.toExponential(3);
+          }
+          return num.toPrecision(9);
+        }
+        return value;
+      }
+
+      function inputNumber(num) {
+        if (waitingForOperand) {
+          currentInput = num;
+          waitingForOperand = false;
+        } else {
+          currentInput = currentInput === "0" ? num : currentInput + num;
+        }
+        updateDisplay();
+      }
+
+      function inputDecimal() {
+        if (waitingForOperand) {
+          currentInput = "0.";
+          waitingForOperand = false;
+        } else if (!currentInput.includes(".")) {
+          currentInput += ".";
+        }
+        updateDisplay();
+      }
+
+      function clearFunction() {
+        if (clearBtn.textContent === "AC") {
+          clearAll();
+        } else {
+          currentInput = "0";
+          waitingForOperand = false;
+          updateDisplay();
+        }
+      }
+
+      function clearAll() {
+        currentInput = "0";
+        previousInput = null;
+        operator = null;
+        waitingForOperand = false;
+        clearOperatorHighlight();
+        updateDisplay();
+      }
+
+      function toggleSign() {
+        if (currentInput !== "0") {
+          currentInput = currentInput.startsWith("-")
+            ? currentInput.slice(1)
+            : "-" + currentInput;
+          updateDisplay();
+        }
+      }
+
+      function percentage() {
+        if (currentInput === "0" || currentInput === "Error") return;
+        const value = parseFloat(currentInput);
+        currentInput = String(value / 100);
+        updateDisplay();
+      }
+
+      function setOperation(nextOperator) {
+        if (currentInput === "Error") return;
+
+        if (waitingForOperand && previousInput !== null) {
+          operator = nextOperator;
+          highlightOperator(nextOperator);
+          return;
+        }
+
+        const inputValue = parseFloat(currentInput);
+
+        if (previousInput === null) {
+          previousInput = inputValue;
+        } else if (operator) {
+          const result = performCalculation(
+            previousInput,
+            inputValue,
+            operator
+          );
+          if (result === "Error") {
+            currentInput = "Error";
+            previousInput = null;
+            operator = null;
+            updateDisplay();
+            return;
+          }
+          previousInput = result;
+          currentInput = String(result);
+          updateDisplay();
+        }
+
+        waitingForOperand = true;
+        operator = nextOperator;
+        highlightOperator(nextOperator);
+      }
+
+      function performCalculation(first, second, op) {
+        switch (op) {
+          case "+":
+            return first + second;
+          case "-":
+            return first - second;
+          case "×":
+            return first * second;
+          case "÷":
+            return second === 0 ? "Error" : first / second;
+          default:
+            return second;
+        }
+      }
+
+      function calculate() {
+        if (!operator || waitingForOperand || currentInput === "Error") return;
+
+        const inputValue = parseFloat(currentInput);
+        const result = performCalculation(
+          previousInput || 0,
+          inputValue,
+          operator
+        );
+
+        currentInput = String(result);
+        previousInput = null;
+        operator = null;
+        waitingForOperand = true;
+        clearOperatorHighlight();
+        updateDisplay();
+      }
+
+      function highlightOperator(op) {
+        clearOperatorHighlight();
+        const opButtons = {
+          "+": "add",
+          "-": "subtract",
+          "×": "multiply",
+          "÷": "divide",
+        };
+        if (opButtons[op]) {
+          document.getElementById(opButtons[op]).classList.add("active");
+        }
+      }
+
+      function clearOperatorHighlight() {
+        ["add", "subtract", "multiply", "divide"].forEach((id) => {
+          document.getElementById(id).classList.remove("active");
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        const key = e.key;
+
+        if (
+          e.key.startsWith("F") ||
+          key === "Tab" ||
+          key === "Shift" ||
+          key === "Control" ||
+          key === "Alt" ||
+          key === "Meta"
+        ) {
+          return;
+        }
+
+        if (/[0-9]/.test(key)) inputNumber(key);
+        else if (key === ".") inputDecimal();
+        else if (key === "+") setOperation("+");
+        else if (key === "-") setOperation("-");
+        else if (key === "*") setOperation("×");
+        else if (key === "/") {
+          e.preventDefault();
+          setOperation("÷");
+        } else if (key === "Enter" || key === "=") {
+          e.preventDefault();
+          calculate();
+        } else if (key === "Escape" || key === "c" || key === "C")
+          clearFunction();
+        else if (key === "%") percentage();
+      });
+      updateDisplay();
+    </script>
+  </body>
+</html>
